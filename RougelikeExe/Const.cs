@@ -15,5 +15,7 @@ namespace RougelikeExe
         public static char ENEMY = '#';
         public static string MAZEGENEXE = "D:\\dev\\c++\\Maze\\RandMapGen.exe";
         public static string PATHTXT = "currentMaze.txt";
+        public static string RES_PREVIEW = "D:\\dev\\c++\\Maze\\prev.jpg";
+        public static string RES_COIN = "D:\\dev\\c++\\Maze\\coin1.jpg";
     }
 }

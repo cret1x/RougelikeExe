@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RougelikeExe
@@ -14,6 +15,7 @@ namespace RougelikeExe
         private char[][] matrix;
         private readonly int width;
         private readonly int height;
+        private bool hasCoin = false;
         private readonly bool GUI = true;
 
         public Map(int lenX, int lenY)
@@ -43,6 +45,7 @@ namespace RougelikeExe
             };
             process.StartInfo = startInfo;
             process.Start();
+            Thread.Sleep(500);
             //reading currentMaze.txt
             string textFromFile;
             using (FileStream fileStream = File.OpenRead(Const.PATHTXT))
@@ -51,7 +54,7 @@ namespace RougelikeExe
 
                 fileStream.Read(array, 0, array.Length);
 
-                textFromFile = System.Text.Encoding.Default.GetString(array);
+                textFromFile = Encoding.Default.GetString(array);
             }
             string[] lines = textFromFile.Split(';');
 
@@ -61,9 +64,18 @@ namespace RougelikeExe
                 {
                     if (lines[i][j] == '0') matrix[i][j] = Const.CELL;
                     if (lines[i][j] == '1') matrix[i][j] = Const.WALL;
-                    if (lines[i][j] == '2') matrix[i][j] = Const.COIN;
+                    if (lines[i][j] == '2')
+                    {
+                        if (matrix[i][j] == Const.PLAYER)
+                        {
+                            Init();
+                        }
+                        matrix[i][j] = Const.COIN;
+                        hasCoin = true;
+                    }
                 }
             }
+            if (!hasCoin) Init();
         }
 
         public void AddEntity(int posX, int posY, char type)
@@ -76,49 +88,50 @@ namespace RougelikeExe
             matrix[posY][posX] = ' ';
         }
 
-        public void Print()
+        public string[] PrepareBuffer()
         {
-            string buffer;
+            string[] buffer = new string[height];
+            string line_buffer = "";
+            string[] char_buffer = new string[width];
             for (int i = 0; i < height; i++)
             {
                 if (!GUI)
                 {
-                    Console.WriteLine(string.Join(" ", matrix[i]));
+                    buffer[i] = string.Join(" ", matrix[i]);
                 }
                 else
                 {
                     for (int j = 0; j < width; j++)
                     {
-                        buffer = matrix[i][j].ToString() + " ";
+                        char_buffer[j] = matrix[i][j].ToString() + " ";
                         
                         if (matrix[i][j] == Const.WALL)
                         {
-                            buffer = buffer.Pastel(Color.White).PastelBg(Color.White);
+                            char_buffer[j] = char_buffer[j].Pastel(Color.LimeGreen).PastelBg(Color.LimeGreen);
                         }
                         
                         if (matrix[i][j] == Const.PLAYER)
                         {
-                            buffer = buffer.Pastel(Color.LimeGreen).PastelBg(Color.LimeGreen);
+                            char_buffer[j] = char_buffer[j].Pastel(Color.Purple).PastelBg(Color.Purple);
                         }
 
                         if (matrix[i][j] == Const.COIN)
                         {
-                            buffer = buffer.Pastel(Color.Gold).PastelBg(Color.Gold);
+                            char_buffer[j] = char_buffer[j].Pastel(Color.Gold).PastelBg(Color.Gold);
                         }
                         if (matrix[i][j] == Const.CELL)
                         {
-                            //buffer.Pastel(Color.Green).PastelBg(Color.Green);
+                            char_buffer[j] = char_buffer[j].Pastel(Color.ForestGreen).PastelBg(Color.ForestGreen);
                         }
-                        
-
-                        Console.Write(buffer);
-                        //Console.BackgroundColor = ConsoleColor.Black;
-                        //Console.ForegroundColor = ConsoleColor.White;
+                        line_buffer = String.Join("",char_buffer);
                     }
-                    Console.WriteLine();
+                    buffer[i] = line_buffer;
                 }
+                //Console.WriteLine(line_buffer);
                 
             }
+
+            return buffer;
         }
 
         public bool IsCoin(int x, int y)
@@ -131,6 +144,18 @@ namespace RougelikeExe
         {
             if (matrix[y][x] == Const.WALL) return true;
             return false;
+        }
+
+        public void Debug()
+        {
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    Console.Write(matrix[i][j]);
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

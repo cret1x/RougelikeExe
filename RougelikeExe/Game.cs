@@ -17,41 +17,40 @@ namespace RougelikeExe
         private readonly int HEIGHT;
         private readonly int WIDTH;
 
-        public Game(Map map_, Player player_, int width, int height)
+        public Game(int width, int height)
         {
-            map = map_;
-            player = player_;
-            mapNumber = 0;
             HEIGHT = height;
             WIDTH = width;
+            map = new Map(WIDTH, HEIGHT);
+            player = new Player(1, HEIGHT - 2);
+            mapNumber = 0;
         }
 
-        public void showPreview()
+        public void ShowPreview(string path)
         {
+            ClearScreen();
             Console.Beep();
+            Bitmap prev = PixelArt.CreatePixelArt(path);
             int preview_height = Console.WindowHeight;
             int preview_width = Console.WindowWidth;
             for (int i = 0; i < preview_height; i++)
             {
                 for (int j = 0; j < preview_width/2; j++)
                 {
-                    if (PixelArt.pixelMap[i, j] == 0) Console.Write("  ".PastelBg(Color.White));
-                    else if (PixelArt.pixelMap[i, j] == 1) Console.Write("  ".PastelBg(Color.Red));
-                    else if (PixelArt.pixelMap[i, j] == 2) Console.Write("  ".PastelBg(Color.Goldenrod));
-                    else if (PixelArt.pixelMap[i, j] == 3) Console.Write("  ".PastelBg(Color.DarkRed));
+                    Color color = prev.GetPixel(j, i);
+                    Console.Write("  ".PastelBg(color));
                 }
             }
         }
 
         public void DrawFrame()
         {
-            string buffer;
+            List<string> lbuffer = new List<string>(HEIGHT+2);
             map.AddEntity(player.GetX(), player.GetY(), Const.PLAYER);
-            map.Print();
-            buffer = "Score: " + player.GetScore().ToString();
-            Console.WriteLine(buffer.Pastel(Color.White));
-            buffer = "Map: " + mapNumber.ToString();
-            Console.WriteLine(buffer.Pastel(Color.White));
+            lbuffer.AddRange(map.PrepareBuffer());
+            lbuffer.Add(("Coins: " + player.GetScore().ToString()).Pastel(Color.Gold));
+            lbuffer.Add(("Map: " + mapNumber.ToString()).Pastel(Color.White));
+            ScreenRenderer.PrintBuffer(lbuffer.ToArray());
         }
 
         public void ClearScreen()
@@ -106,17 +105,29 @@ namespace RougelikeExe
                 default:
                     break;
             }
+
+
             if (map.IsCoin(player.GetX(), player.GetY()))
             {
-                player.SetScore(player.GetScore() + 10 * mapNumber);
+                ShowPreview(Const.RES_COIN);
+                Thread.Sleep(1000);
+                ClearScreen();
+                player.SetScore(player.GetScore() + 10);
                 NextStage();
             }
         }
 
         public void NextStage()
         {
+            
             map.Init();
             mapNumber++;
+        }
+
+        public void Dubug()
+        {
+            Console.Clear();
+            map.Debug();
         }
     }
 }

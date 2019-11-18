@@ -8,14 +8,13 @@ namespace RougelikeExe
     class Program
     {
         static readonly int WIDTH = 21;
-        static readonly int HEIGTH = 21;
+        static readonly int HEIGHT = 21;
 
         static void Main(string[] args)
         {
-            Map map = new Map(WIDTH, HEIGTH);
-            Player player = new Player(1, HEIGTH-2);
-            Game game = new Game(map, player, WIDTH, HEIGTH);
-            game.showPreview();
+            //Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            Game game = new Game(WIDTH, HEIGHT);
+            game.ShowPreview(Const.RES_PREVIEW);
             Thread.Sleep(2000);
             game.ClearScreen();
             game.NextStage();
@@ -25,6 +24,7 @@ namespace RougelikeExe
             while (key.Key != ConsoleKey.Escape)
             {
                 game.ClearScreen();
+                if(key.Key == ConsoleKey.G) game.Dubug();
                 game.InputHandler(key.Key);
                 game.DrawFrame();
                 key = Console.ReadKey();

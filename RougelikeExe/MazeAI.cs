@@ -15,5 +15,26 @@ namespace RougelikeExe
             x = posX;
             y = posY;
         }
+        public void NextStep()
+        {
+            Random random = new Random();
+            switch (random.Next(4))
+            {
+                case 0:
+                    Up();
+                    break;
+                case 1:
+                    Down();
+                    break;
+                case 2:
+                    Right();
+                    break;
+                case 3:
+                    Left();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
